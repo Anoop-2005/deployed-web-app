@@ -23,7 +23,7 @@ embeddings = GoogleGenerativeAIEmbeddings(
 
 vectorstore = AstraDBVectorStore(
     embedding=embeddings,
-    collection_name="blog",
+    collection_name="deploedapp",
     api_endpoint=os.getenv("ASTRA_DB_ENDPOINT"),
     token=os.getenv("ASTRA_DB_TOKEN"),
 )
