@@ -92,15 +92,15 @@ const Logout = async(req, res)=>{
 const updateProfile=async(req, res) => {
     try {
         const userId= req.params.id;
-        const { name, oldpassword, newpassword }= req.body;
+        const { name, oldPassword, newPassword }= req.body;
 
         const existUser = await UserModel.findById(userId);
         if (!existUser) {
             return res.status(404).json({success:false, message: "Account not Found"});
         }
 
-        if (oldpassword){
-            const isMatch = await existUser.comparePassword(oldpassword);
+        if (oldPassword){
+            const isMatch = await existUser.comparePassword(oldPassword);
             if (!isMatch) {
                 return res.status(404).json({success:false, message:"Old password in wrong"})
             }
@@ -110,10 +110,10 @@ const updateProfile=async(req, res) => {
             existUser.name = name;
         }
 
-        if (oldpassword && newpassword) {
-            existUser.password = newpassword;
+        if (oldPassword && newPassword) {
+            existUser.password = newPassword;
         
-        }else if (oldpassword && !newpassword) {
+        }else if (oldPassword && !newPassword) {
             return res.status(404).json({success:false, message:"Please write new password"})
         }
         await existUser.save();
