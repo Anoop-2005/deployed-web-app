@@ -36,7 +36,7 @@ export default function Navbar() {
             {!user ? <Link to={'/login'}><button className='btn_sign mx-3'>Sign in</button></Link> : (
                 <div className='dropdown'>
         <div className='avatar-container pointer rounded-circle overflow-hidden bg-info' data-bs-toggle="dropdown" aria-expanded="false" style={{width:'40px', height:'40px', cursor: 'pointer'}}>
-            <img src={`${BaseUrl}/images/${user.profile}`}
+            <img src="https://www.svgrepo.com/show/522440/profile.svg"
             className='img-fluid h-100 w-100'
             alt='Profilw'
             style={{objectFit: "cover"}} alt="" />
