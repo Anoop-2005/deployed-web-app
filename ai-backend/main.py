@@ -15,6 +15,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 llm = ChatGroq(model="openai/gpt-oss-20b", api_key=os.getenv("GROQ_API_KEY"))
 
+
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 vectorstore = AstraDBVectorStore(
@@ -23,6 +24,7 @@ vectorstore = AstraDBVectorStore(
     api_endpoint=os.getenv("ASTRA_DB_ENDPOINT"),
     token=os.getenv("ASTRA_DB_TOKEN"),
 )
+
 
 class IndexRequest(BaseModel):
     post_id: str
@@ -42,8 +44,8 @@ def index_blog(req: IndexRequest):
         page_content=f"{req.title}\n{req.desc}",
         metadata={"post_id": req.post_id, "title": req.title},
     )
-    vectorstore.add_documents([doc], ids=[req.post_id])
-    return {"success": True}
+    vs = get_vectorstore()
+    vs.add_documents([doc], ids=[req.post_id])
 
 @app.post("/chat")
 def chat(req: ChatRequest):
@@ -60,10 +62,15 @@ def chat(req: ChatRequest):
     answer = llm.invoke(prompt).content
 
     suggest = None
-    results = vectorstore.similarity_search(f"{req.question} {answer}", k=3)
+    vs = get_vectorstore()
+    results = vs.similarity_search(f"{req.question} {answer}", k=3)
     for r in results:
          if r.metadata.get("post_id") != req.post_id:
             suggest = {"id": r.metadata["post_id"], "title": r.metadata["title"]}
             break
 
     return {"answer": answer, "suggested_blog": suggest}
+
+@app.get("/")
+def health():
+    return {"status": "running"}
