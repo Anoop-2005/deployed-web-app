@@ -5,7 +5,7 @@ langchain==0.3.29
 langchain-core==0.3.85
 langchain-community==0.3.29
 langchain-groq==0.2.5
-langchain-huggingface==0.1.2
+langchain-google-genai
 langchain-astradb==0.6.0
-sentence-transformers==3.3.1
+
 

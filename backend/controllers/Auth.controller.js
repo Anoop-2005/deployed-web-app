@@ -4,6 +4,7 @@ import  Jwt  from "jsonwebtoken";
 
 const Register= async(req, res) => {
     try {
+        console.log("BODY RECEIVED:", req.body);
         const { name, email, password } = req.body;
 
         //basic validation 

@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_astradb import AstraDBVectorStore
 from langchain_core.documents import Document
 
@@ -16,7 +16,10 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 llm = ChatGroq(model="openai/gpt-oss-20b", api_key=os.getenv("GROQ_API_KEY"))
 
 
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embeddings = GoogleGenerativeAIEmbeddings(
+    model="models/text-embedding-004",
+    google_api_key=os.getenv("GOOGLE_API_KEY")
+)
 
 vectorstore = AstraDBVectorStore(
     embedding=embeddings,
@@ -44,8 +47,8 @@ def index_blog(req: IndexRequest):
         page_content=f"{req.title}\n{req.desc}",
         metadata={"post_id": req.post_id, "title": req.title},
     )
-    vs = get_vectorstore()
-    vs.add_documents([doc], ids=[req.post_id])
+    
+    vectorstore.add_documents([doc], ids=[req.post_id])
 
 @app.post("/chat")
 def chat(req: ChatRequest):

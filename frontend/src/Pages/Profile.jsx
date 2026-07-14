@@ -19,18 +19,20 @@ export default function Profile() {
     if (user) {
       setName(user.name)
     }
-  },[])
+  },[user])
 
   const handleUpdateProfile=async(e)=>{
     e.preventDefault();
-    console.log("submit clicked")
-    const formData= new FormData();
-    formData.append('name',name)
-    formData.append('oldpassword',oldPassword)
-    formData.append('newpassword', newPassword)
-    
     try {
-      const response = await patch(`auth/profile/${userId}`,formData)
+      const response = await patch(`auth/profile/${userId}`, {
+        name,
+        oldPassword,
+        newPassword
+      }, {
+        headers: {
+        "Content-Type": "application/json"
+      }
+    });
       const data=response.data
       console.log(data)
       if (response.status==200) {

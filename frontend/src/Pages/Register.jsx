@@ -6,6 +6,7 @@ import { post } from '../services/Endpoint';
 
 export default function Register() {
   const navigate=useNavigate()
+  const [loading, setLoading] = useState(false);
   const [value, setValue]=useState({
     name:'',
     email:'',
@@ -13,39 +14,32 @@ export default function Register() {
   });
 
 
-  const handleSubmit=async(e)=>{
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const formData= new FormData();
-    formData.append('name', value.name);
-    formData.append('email', value.email);
-    formData.append('password', value.password);
+  setLoading(true);
 
-    try {
-      const response=await post('auth/register', formData,{ 
-        headers:{
-          'content-Type':'multipart/form-data',
-        },
-      });
+  try {
+    const response = await post("auth/register", value);
 
-      const data = response.data;
-      if (data.success){
-        console.log(data.message)
-        navigate('/login')
-        toast.success(data.message)
-      }
-      console.log('register api', data)
-    } catch (error) {
-      console.log('login error', error)
-      if (error.response && error.response.data && error.response.data.message){
-        toast.error(error.response.data.message)
-      } else {
-        toast.error("Unexpected Error")
-      }
-      
+    const data = response.data;
+
+    if (data.success) {
+      toast.success(data.message);
+      navigate("/login");
     }
-  }
 
+  } catch (error) {
+    console.log("register error", error);
+
+    toast.error(
+      error.response?.data?.message || "Unexpected Error"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <>
     <section className='bg-light'>
@@ -100,7 +94,7 @@ export default function Register() {
                 />
               </div>
 
-              <button type='submit' className='btn btn-primary w-100'>Sign in</button>
+              <button type='submit' className='btn btn-primary w-100' disabled={loading}>{loading ? "Creating Account..." : "Sign Up"}</button>
           </form>
          <p className='mt-3 mb-0 text-muted'>
           Already have account? <Link to='/login' className='text-primary'>sign in</Link>

@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000
 const app=express();
 
 const corsoption={
-    origin:true,
+    origin:"https://deployed-web-app.pages.dev/",
     credentials:true
 }
 
@@ -26,6 +26,7 @@ const corsoption={
 app.use(cors(corsoption))
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
     res.send("Hello from backend")
 })

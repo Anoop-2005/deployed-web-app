@@ -29,12 +29,14 @@ export default function UpdatePost() {
     e.preventDefault()
     try {
       setLoading(true)
-      const formData = new FormData()
-      formData.append('title', title)
-      formData.append('desc', desc)
-
-      const response = await patch(`/blog/update/${id}`, formData)
-
+      const response = await patch(`/blog/update/${id}`, {
+        title,
+        desc
+      }, {
+        headers: {
+          "Content-Type": "application/json"
+      }
+    });
       if (response.data.success) {
         toast.success(response.data.message)
         navigate('/dashboard/allposts')
