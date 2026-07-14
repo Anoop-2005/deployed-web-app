@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000
 const app=express();
 
 const corsoption={
-    origin:"https://deployed-web-app.pages.dev/",
+    origin:"https://deployed-web-app.pages.dev",
     credentials:true
 }
 
