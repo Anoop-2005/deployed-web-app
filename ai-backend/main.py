@@ -18,13 +18,14 @@ llm = ChatGroq(model="openai/gpt-oss-20b", api_key=os.getenv("GROQ_API_KEY"))
 
 
 embeddings = GoogleGenerativeAIEmbeddings(
-    model="models/text-embedding-004",
+    model="gemini-embedding-2-preview",
+    output_dimensionality=768,
     google_api_key=os.getenv("GOOGLE_API_KEY")
 )
 
 vectorstore = AstraDBVectorStore(
     embedding=embeddings,
-    collection_name="deploedapp",
+    collection_name="blog_embedding",
     api_endpoint=os.getenv("ASTRA_DB_ENDPOINT"),
     token=os.getenv("ASTRA_DB_TOKEN"),
 )
@@ -66,7 +67,7 @@ def chat(req: ChatRequest):
     prompt = prompts.get(req.mode, prompts["qa"])
     answer = llm.invoke(prompt).content
 
-    search_query = f"{req.question} {answer}" if req.question else answer
+    search_query = req.question if (req.mode == "qa" and req.question) else req.title
 
     suggest = None
     results = vectorstore.similarity_search(search_query, k=3)

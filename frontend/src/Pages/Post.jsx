@@ -115,14 +115,8 @@ export default function Blog() {
          {singlePost && singlePost.comments && singlePost.comments.map((elem)=>{
           return(
             <div key={elem._id} className="bg-secondary p-3 rounded mb-3 d-flex">
-            <img 
-             src={`${BaseUrl}/images/${elem.userId.profile}`}
-              alt="John Doe" 
-              className="rounded-circle me-3"
-              style={{ width: "50px", height: "50px", objectFit: "cover" }}
-            />
             <div>
-              <h5 className="mb-1">{elem.userId.FullName}</h5>
+              <h5 className="mb-1">{elem.userId.name}</h5>
               <p className="mb-0">{elem.comment}</p>
             </div>
           </div>

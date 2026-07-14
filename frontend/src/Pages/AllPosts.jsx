@@ -55,6 +55,14 @@ export default function AllPosts() {
     }
     getposts()
   },[loadedata])
+
+  const truncateText=(text, wordLimit)=>{
+        const words=text.split(" ");
+        if (words.length > wordLimit) {
+            return words.slice(0,wordLimit).join(' ')+ '...';
+        }
+        return text;
+    }
   
   return (
    
@@ -67,7 +75,7 @@ export default function AllPosts() {
         <div className='card h-100'>
           <div className='card-body'>
             <h5 className='card-title'>{post.title}</h5>
-            <p className='card-text'>{post.desc}</p>
+            <p className='card-text'>{truncateText(post.desc, 30)}</p>
           </div>
           <div className='card-footer d-flex justify-content-between'>
             <button

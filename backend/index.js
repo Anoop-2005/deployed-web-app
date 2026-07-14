@@ -15,8 +15,13 @@ dotenv.config()
 const PORT = process.env.PORT || 3000
 const app=express();
 
+const origins = [
+    "http://localhost:5173",
+    "https://deployed-web-app.pages.dev",
+]
+
 const corsoption={
-    origin:"https://deployed-web-app.pages.dev",
+    origin:origins,
     credentials:true
 }
 
