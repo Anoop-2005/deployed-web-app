@@ -121,7 +121,7 @@ const updateProfile=async(req, res) => {
         res.status(200).json({success:true, message:'Profile Update Successfully', user:existUser})
 
     } catch (error) {
-        console.error('Error Updating Profile'. error);
+        console.error('Error Updating Profile', error);
         res.status(500).json({success:false, message:"Internal Server Error"})
         
     }
