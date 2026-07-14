@@ -1,0 +1,69 @@
+import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from dotenv import load_dotenv
+from langchain_groq import ChatGroq
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_astradb import AstraDBVectorStore
+from langchain_core.documents import Document
+
+load_dotenv()
+
+app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+llm = ChatGroq(model="openai/gpt-oss-20b", api_key=os.getenv("GROQ_API_KEY"))
+
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+vectorstore = AstraDBVectorStore(
+    embedding=embeddings,
+    collection_name="blog",
+    api_endpoint=os.getenv("ASTRA_DB_ENDPOINT"),
+    token=os.getenv("ASTRA_DB_TOKEN"),
+)
+
+class IndexRequest(BaseModel):
+    post_id: str
+    title: str
+    desc: str
+
+class ChatRequest(BaseModel):
+    post_id: str
+    title: str
+    desc: str
+    question: str | None = None
+    mode: str = "qa"
+
+@app.post("/index")
+def index_blog(req: IndexRequest):
+    doc = Document(
+        page_content=f"{req.title}\n{req.desc}",
+        metadata={"post_id": req.post_id, "title": req.title},
+    )
+    vectorstore.add_documents([doc], ids=[req.post_id])
+    return {"success": True}
+
+@app.post("/chat")
+def chat(req: ChatRequest):
+    blog_text = f"Title: {req.title}\n\nContent: {req.desc}"
+
+    prompts = {
+        "summary": f"Summarize this blog in 3-4 sentences.\n\n{blog_text}",
+        "keypoints": f"List the key points of this blog as a short bullet list.\n\n{blog_text}",
+        "apply": f"Give 3-5 practical ways a reader could apply this blog in their life or work.\n\n{blog_text}",
+        "qa": f"Answer the question using only the blog below. Be concise.\n\nBlog:\n{blog_text}\n\nQuestion: {req.question}",
+    }
+
+    prompt = prompts.get(req.mode, prompts["qa"])
+    answer = llm.invoke(prompt).content
+
+    suggest = None
+    results = vectorstore.similarity_search(f"{req.question} {answer}", k=3)
+    for r in results:
+         if r.metadata.get("post_id") != req.post_id:
+            suggest = {"id": r.metadata["post_id"], "title": r.metadata["title"]}
+            break
+
+    return {"answer": answer, "suggested_blog": suggest}
