@@ -56,7 +56,8 @@ const Login = async(req, res) => {
         const token = Jwt.sign({userID:FoundUser._id}, process.env.JWT_SECRET)
         res.cookie('token', token, {
             httpOnly: true,
-            secure:false,
+            secure:true,
+            sameSite: "none",
             maxAge:3*24*60*60*1000
         })
 
@@ -79,7 +80,7 @@ const Logout = async(req, res)=>{
         const user = await UserModel.findOne({email});
         if (!user) return res.status(404).json({success:false, message:"User not found"});*/
 
-        res.clearCookie('token', {path:'/'});
+        res.clearCookie('token', {path:'/', sameSite:"none", secure:true });
         res.status(200).json({success:true, message:"Logout Successful"})
 
     }catch (error){

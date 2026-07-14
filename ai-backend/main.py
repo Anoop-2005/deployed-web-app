@@ -7,6 +7,7 @@ from langchain_groq import ChatGroq
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_astradb import AstraDBVectorStore
 from langchain_core.documents import Document
+from typing import Literal
 
 load_dotenv()
 
@@ -39,7 +40,7 @@ class ChatRequest(BaseModel):
     title: str
     desc: str
     question: str | None = None
-    mode: str = "qa"
+    mode: Literal["summary", "keypoints", "apply", "qa"] = "qa"
 
 @app.post("/index")
 def index_blog(req: IndexRequest):
@@ -49,6 +50,7 @@ def index_blog(req: IndexRequest):
     )
     
     vectorstore.add_documents([doc], ids=[req.post_id])
+    return {"status": "indexed", "post_id": req.post_id}
 
 @app.post("/chat")
 def chat(req: ChatRequest):
@@ -64,9 +66,10 @@ def chat(req: ChatRequest):
     prompt = prompts.get(req.mode, prompts["qa"])
     answer = llm.invoke(prompt).content
 
+    search_query = f"{req.question} {answer}" if req.question else answer
+
     suggest = None
-    vs = get_vectorstore()
-    results = vs.similarity_search(f"{req.question} {answer}", k=3)
+    results = vectorstore.similarity_search(search_query, k=3)
     for r in results:
          if r.metadata.get("post_id") != req.post_id:
             suggest = {"id": r.metadata["post_id"], "title": r.metadata["title"]}

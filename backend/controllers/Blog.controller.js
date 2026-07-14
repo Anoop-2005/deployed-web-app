@@ -5,14 +5,6 @@ import CommentModel from "../models/comments.model.js";
 const Create=async(req, res)=>{
     try{
         const {title, desc} = req.body;
-
-        let imagePath="";
-        if (req.file) {
-            imagePath = req.file.filename;
-            //const imagePath = req.file ? req.file.path : null;
-            //const imagePath = req.file.filename;
-
-        }
         
         const CreateBlog = new Blogmodel({
             title,
