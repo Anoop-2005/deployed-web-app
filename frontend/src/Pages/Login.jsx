@@ -51,7 +51,7 @@ export default function Login() {
       <div className='container d-flex flex-column align-items-center justify-content-center min-vh-100 py-4'>
         <Link to='/' className='mb-4 text-dark text-decoration-none d-flex align-items-center'>
           <img className='me-2' src="https://www.svgrepo.com/show/506725/login.svg" alt="logo" width="32" height="32"/>
-          <span className='h4 mb-0 fw-bold'>FullStack is Fun!</span></Link>
+          <span className='h4 mb-0 fw-bold'>Enjoying Computer Science?</span></Link>
       
         <div className='card shadow-sm w-100' style={{ maxWidth: '400px'}}>
         <div className='card-body p-4'>

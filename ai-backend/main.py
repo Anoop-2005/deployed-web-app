@@ -28,7 +28,10 @@ vectorstore = AstraDBVectorStore(
     collection_name="blog_embedding",
     api_endpoint=os.getenv("ASTRA_DB_ENDPOINT"),
     token=os.getenv("ASTRA_DB_TOKEN"),
+    autodetect_collection=True,
 )
+
+
 
 
 class IndexRequest(BaseModel):
@@ -52,6 +55,25 @@ def index_blog(req: IndexRequest):
     
     vectorstore.add_documents([doc], ids=[req.post_id])
     return {"status": "indexed", "post_id": req.post_id}
+
+
+@app.delete("/index/{post_id}")
+def delete_blog_index(post_id: str):
+    try:
+        vectorstore.delete(ids=[post_id])
+        return {"status": "deleted", "post_id": post_id}
+    except Exception as e:
+        return {"status": "error", "post_id": post_id, "error": str(e)}
+
+#@app.delete("/remove")
+#def remove_blog(req: IndexRequest):
+#    # Fixed syntax: changed ':' to '=' 
+#    vectorstore.delete_by_metadata_filter(
+#        filter={"post_id": req.post_id, "title": req.title}
+#    )
+#    return {"status": "Deleted", "post_id": req.post_id}
+
+
 
 @app.post("/chat")
 def chat(req: ChatRequest):

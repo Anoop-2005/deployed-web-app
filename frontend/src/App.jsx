@@ -13,6 +13,7 @@ import User from './Pages/Admin/User'
 import AllPosts from './Pages/AllPosts'
 import {Toaster} from 'react-hot-toast'
 import UpdatePost from './Pages/Admin/UpdatePost'
+import Info from './Pages/Info'
 
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
       <Route index element={<Home/>}/>
       <Route path='/post/:postId' element={<Post/>}/>
       <Route path='/profile/:userId' element={<Profile/>}/>
+      <Route path='/info' element={<Info/>}/>
       </Route>
       
       <Route path='/dashboard' element={<AdminLayout/>}>

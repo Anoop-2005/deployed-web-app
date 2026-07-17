@@ -1,5 +1,5 @@
 import Blogmodel from "../models/blog.model.js";
-import { indexBlog } from "../services/Chat.service.js";
+import { indexBlog, deleteBlogIndex } from "../services/Chat.service.js";
 import CommentModel from "../models/comments.model.js";
 
 const Create=async(req, res)=>{
@@ -27,22 +27,25 @@ const deletePost = async(req, res)=>{
     try {
         const postId=req.params.id;
 
-        const post= await Blogmodel.findById(postId)
-
-        if (!post) {
-            return res.status(404).json({success:false, message:'Blog not found'})
+        const deletedPost = await Blogmodel.findByIdAndDelete(postId);
+        if (!deletedPost) {
+            return res.status(404).json({
+                success: false,
+                message: "Blog not found",
+            });
         }
-
-
-        const deletePost = await Blogmodel.findByIdAndDelete(postId)
-        const deleComment = await CommentModel.deleteMany({postId: postId})
-        res.status(200).json({success:true, message:"Post Deleted Successfully"})
+        await CommentModel.deleteMany({ postId: postId });
+        deleteBlogIndex(postId);
         
+
+        return res.status(200).json({success: true,message: "Post deleted successfully",});
+
     } catch (error) {
-        res.status(500).json({success:true, message:"Internal server error", error: error.message})
-        
+        return res.status(500).json({success: false,message: "Internal server error",error: error.message,});
     }
-}
+};
+
+        
 
 const getposts= async(req,res)=>{
     try {
@@ -68,7 +71,7 @@ const update = async(req,res)=>{
 
         if (title) postUpdate.title=title;
         if (desc) postUpdate.desc= desc;
-        if (req.file) postUpdate.image =req.file.filename;
+        //if (req.file) postUpdate.image =req.file.filename;
 
         await postUpdate.save();
         indexBlog(postUpdate);
@@ -93,6 +96,20 @@ const toggleLikeBlog = async (req, res) => {
 
         
         const hasLiked = blog.likes.includes(userId);
+
+        /*const updatedBlog = await Blogmodel.findByIdAndUpdate(
+            blogId,
+            hasLiked
+                ? { $pull: { likes: userId } }
+                : { $addToSet: { likes: userId } },
+            { new: true }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: hasLiked ? "Blog unliked successfully" : "Blog liked successfully",
+            likesCount: updatedBlog.likes.length
+        }); */
 
         if (hasLiked) {
             // User already liked it -> Unlike it (Remove userId from array)

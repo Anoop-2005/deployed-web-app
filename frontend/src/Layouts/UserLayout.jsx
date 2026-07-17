@@ -1,6 +1,7 @@
 import React from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Navbar from '../Components/Navbar'
+import Footer from '../Components/Footer'
 
 
 export default function UserLayout() {
@@ -11,6 +12,7 @@ export default function UserLayout() {
             <Navbar/>
 
         <Outlet/>
+        <Footer/>
           
 
     </>

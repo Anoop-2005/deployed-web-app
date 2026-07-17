@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import Navbar from '../Components/Navbar'
 import Sidebar from '../Components/Sidebar'
 import { useSelector } from 'react-redux'
+import Footer from '../Components/Footer'
 
 export default function AdminLayout() {
   const user=useSelector((state)=>state.auth.user)
@@ -30,6 +31,7 @@ export default function AdminLayout() {
             
 
         </div>
+        <Footer/>
         
     
     </>
