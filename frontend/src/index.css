@@ -309,3 +309,43 @@ a{
 .footer a:hover {
     color: var(--accent) !important; 
 }
+
+/* Chatbot */
+.chatbot-box {
+  width: 320px;
+  height: 440px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  color: var(--text);
+}
+
+.chatbot-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.chatbot-messages {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.chatbot-message {
+  margin-bottom: 10px;
+}
+
+.chatbot-floating {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;
+}
+
+.chatbot-popup {
+  margin-top: 10px;
+}

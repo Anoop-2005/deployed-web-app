@@ -31,16 +31,16 @@ export default function ChatbotWidget({ postId, mode = "floating" }) {
   };
 
   const box = (
-    <div style={{ width: 320, height: 440, background: "#fff", border: "1px solid #ccc", borderRadius: 12, padding: 12, display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+    <div className="chatbot-box">
+      <div className="chatbot-actions">
         <button className="btn btn-sm btn-outline-secondary" onClick={() => ask({ mode: "summary" }, "Summarize this blog")}>Summary</button>
         <button className="btn btn-sm btn-outline-secondary" onClick={() => ask({ mode: "keypoints" }, "Key points")}>Key Points</button>
         <button className="btn btn-sm btn-outline-secondary" onClick={() => ask({ mode: "apply" }, "How to apply")}>Apply</button>
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", marginBottom: 10 }}>
+      <div className="chatbot-messages">
         {messages.map((m, i) => (
-          <div key={i} style={{ marginBottom: 10 }}>
+          <div key={i} className="chatbot-message">
             <b>{m.role === "user" ? "You" : "AI"}:</b> {m.text}
             {m.suggestion && (
               <div style={{ marginTop: 4, fontSize: 13 }}>
@@ -62,9 +62,9 @@ export default function ChatbotWidget({ postId, mode = "floating" }) {
   if (mode === "inline") return box;
 
   return (
-    <div style={{ position: "fixed", right: 20, bottom: 20, zIndex: 9999 }}>
+    <div className="chatbot-floating">
       <button onClick={() => setOpen(!open)} className="btn btn-dark">{open ? "Close AI" : "Ask AI"}</button>
-      {open && <div style={{ marginTop: 10 }}>{box}</div>}
+      {open && <div className="chatbot-popup">{box}</div>}
     </div>
   );
 }
