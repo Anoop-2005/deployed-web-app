@@ -1,4 +1,7 @@
 import axios from 'axios'
+import { store } from '../redux/Store.js'
+import { removeUser } from '../redux/AuthSlice.js'
+
 export const BaseUrl=import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 const instance=axios.create({
@@ -53,7 +56,9 @@ instance.interceptors.response.use(function (response) {
             await instance.post('/auth/refresh');
             return instance(originalRequest);
         } catch (refreshError) {
-            console.log('Refresh Token Error:', refreshError.message);
+            //console.log('Refresh Token Error:', refreshError.message);
+            store.dispatch(removeUser());
+            window.location.href = '/login';
             return Promise.reject(refreshError);
         }
     }
