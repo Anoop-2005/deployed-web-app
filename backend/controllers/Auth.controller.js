@@ -53,19 +53,30 @@ const Login = async(req, res) => {
             message : "Invalide credentials"
         })
 
-        const token = Jwt.sign({userID:FoundUser._id}, process.env.JWT_SECRET)
-        res.cookie('token', token, {
+        const accessToken = Jwt.sign({userID:FoundUser._id}, process.env.JWT_SECRET, { expiresIn: "15m" })
+        const refreshToken = Jwt.sign({userID:FoundUser._id}, process.env.REFRESH_SECRET, { expiresIn: "1d" })
+
+        FoundUser.refreshToken = refreshToken;
+        await FoundUser.save();
+
+        res.cookie('token', accessToken, {
             httpOnly: true,
             secure:true,
             sameSite: "none",
-            maxAge:3*24*60*60*1000
+            maxAge:15*60*1000
         })
+
+        res.cookie('refreshToken', refreshToken, { 
+            httpOnly:true, 
+            secure:true, 
+            sameSite:"none", 
+            maxAge: 24*60*60*1000})
 
         res.status(200).json({
             success:true,
             message: "Logged in Successfully",
             user: FoundUser,
-            token
+            token:accessToken
         })
 
     }catch (error) {
@@ -79,9 +90,16 @@ const Logout = async(req, res)=>{
         /*const { email } = req.body;
         const user = await UserModel.findOne({email});
         if (!user) return res.status(404).json({success:false, message:"User not found"});*/
+        const token = req.cookies.token
+        if (token){
+            const decoded = Jwt.verify(token, process.env.JWT_SECRET);
+            await UserModel.findByIdAndUpdate(decoded.userID, { refreshToken: null });
+        }
 
         res.clearCookie('token', {path:'/', sameSite:"none", secure:true });
+        res.clearCookie('refreshToken', {path:'/', sameSite:"none", secure:true });
         res.status(200).json({success:true, message:"Logout Successful"})
+
 
     }catch (error){
          res.status(500).json({success: false, message: "Internal Server Error", error: error.message})
@@ -127,4 +145,33 @@ const updateProfile=async(req, res) => {
     }
 }
 
-export {Logout, Login, Register, updateProfile};  
+const RefreshAcessToken= async(req, res) => {
+    try {
+        const reqRefreshToken = req.cookies.refreshToken
+        if (!reqRefreshToken){
+            return res.status(401).json({success:false, message:"No Refresh tokne pls logn"})
+        }
+
+        const decoded = Jwt.verify(reqRefreshToken, process.env.REFRESH_SECRET);
+        const user = await UserModel.findById(decoded.userID)
+
+        if (!user || user.refreshToken !== reqRefreshToken){
+            return res.status(403).json({success:false, message:"Invalide rfersh token"})
+        }
+
+        const newAcessToken = Jwt.sign({userID:user._id}, process.env.JWT_SECRET, {expiresIn: "15m"});
+
+        res.cookie('token', newAcessToken,{
+            httpOnly:true,
+            secure:true,
+            sameSite:"none",
+            maxAge:15*60*1000
+        })
+
+        res.status(200).json({success:true, message:"token Refreshed"})
+    } catch (error) {
+        res.status(401).json({success:false, message:"Token Expirded log in "})
+    }
+}
+
+export {Logout, Login, Register, updateProfile, RefreshAcessToken};  

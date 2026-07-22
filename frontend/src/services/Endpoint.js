@@ -23,13 +23,40 @@ instance.interceptors.request.use(function (config) {
     return Promise.reject(error);
 });
 
-// Add a response interceptor
+// // Add a response interceptor
+// instance.interceptors.response.use(function (response) {
+//     // Log the response data for debugging
+//     console.log('Apis Response', response);
+//     return response;
+// }, function (error) {
+//     // Log the error message for debugging
+//     console.log('Api Error', error.message);
+//     return Promise.reject(error);
+// });
+
 instance.interceptors.response.use(function (response) {
-    // Log the response data for debugging
     console.log('Apis Response', response);
     return response;
-}, function (error) {
-    // Log the error message for debugging
+}, async function (error) {
     console.log('Api Error', error.message);
+
+    const originalRequest = error.config;
+    const status = error.response?.status;
+
+    const isAuthRoute = originalRequest?.url?.includes('/auth/login')
+        || originalRequest?.url?.includes('/auth/refresh')
+        || originalRequest?.url?.includes('/auth/register');
+
+    if (status === 401 && !originalRequest._retry && !isAuthRoute) {
+        originalRequest._retry = true;
+        try {
+            await instance.post('/auth/refresh');
+            return instance(originalRequest);
+        } catch (refreshError) {
+            console.log('Refresh Token Error:', refreshError.message);
+            return Promise.reject(refreshError);
+        }
+    }
+
     return Promise.reject(error);
 });
